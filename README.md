@@ -14,7 +14,7 @@ import (
   "flag"
   "os"
   
-  "github.com/google/logger"
+  "github.com/shiguanghuxian/google-logger"
 )
 
 const logPath = "/some/location/example.log"

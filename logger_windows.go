@@ -32,8 +32,10 @@ func (w *writer) Write(b []byte) (int, error) {
 	switch w.pri {
 	case sInfo:
 		return len(b), w.el.Info(1, string(b))
-	case sError:
+	case sWarn:
 		return len(b), w.el.Error(2, string(b))
+	case sError:
+		return len(b), w.el.Error(3, string(b))
 	}
 	return 0, fmt.Errorf("unrecognized severity: %v", w.pri)
 }
@@ -61,11 +63,11 @@ func newW(pri severity, src string) (*writer, error) {
 func setup(src string) (*writer, *writer, error) {
 	infoL, err := newW(sInfo, src)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	errL, err := newW(sError, src)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	return infoL, errL, nil
 }

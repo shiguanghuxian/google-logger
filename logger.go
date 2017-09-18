@@ -37,6 +37,7 @@ const (
 func initialize() {
 	defaultLogger = &Logger{
 		infoLog:  log.New(os.Stderr, initText+"INFO: ", flags),
+		warnLog:  log.New(os.Stderr, initText+"Warn: ", flags),
 		errorLog: log.New(os.Stderr, initText+"ERROR: ", flags),
 		fatalLog: log.New(os.Stderr, initText+"FATAL: ", flags),
 	}
@@ -76,6 +77,7 @@ func Init(name string, verbose, systemLog bool, logFile io.Writer) *Logger {
 
 	var l Logger
 	l.infoLog = log.New(io.MultiWriter(iLogs...), "INFO: ", flags)
+	l.warnLog = log.New(io.MultiWriter(eLogs...), "Warn: ", flags)
 	l.errorLog = log.New(io.MultiWriter(eLogs...), "ERROR: ", flags)
 	l.fatalLog = log.New(io.MultiWriter(eLogs...), "FATAL: ", flags)
 	l.initialized = true
@@ -93,6 +95,7 @@ type severity int
 
 const (
 	sInfo = iota
+	sWarn
 	sError
 	sFatal
 )
@@ -101,6 +104,7 @@ const (
 // simultaneously even if they are using the same same writers.
 type Logger struct {
 	infoLog     *log.Logger
+	warnLog     *log.Logger
 	errorLog    *log.Logger
 	fatalLog    *log.Logger
 	initialized bool
@@ -111,11 +115,13 @@ func (l *Logger) output(s severity, txt string) {
 	defer logLock.Unlock()
 	switch s {
 	case sInfo:
-		l.infoLog.Output(3, txt)
+		l.infoLog.Output(4, txt)
+	case sWarn:
+		l.warnLog.Output(4, txt)
 	case sError:
-		l.errorLog.Output(3, txt)
+		l.errorLog.Output(4, txt)
 	case sFatal:
-		l.fatalLog.Output(3, txt)
+		l.fatalLog.Output(4, txt)
 	default:
 		panic(fmt.Sprintln("unrecognized severity:", s))
 	}
@@ -137,6 +143,24 @@ func (l *Logger) Infoln(v ...interface{}) {
 // Arguments are handled in the manner of fmt.Printf.
 func (l *Logger) Infof(format string, v ...interface{}) {
 	l.output(sInfo, fmt.Sprintf(format, v...))
+}
+
+// Warn logs with the Warn severity.
+// Arguments are handled in the manner of fmt.Print.
+func (l *Logger) Warn(v ...interface{}) {
+	l.output(sWarn, fmt.Sprint(v...))
+}
+
+// Warnln logs with the Warn severity.
+// Arguments are handled in the manner of fmt.Println.
+func (l *Logger) Warnln(v ...interface{}) {
+	l.output(sWarn, fmt.Sprintln(v...))
+}
+
+// Warnf logs with the Warn severity.
+// Arguments are handled in the manner of fmt.Printf.
+func (l *Logger) Warnf(format string, v ...interface{}) {
+	l.output(sWarn, fmt.Sprintf(format, v...))
 }
 
 // Error logs with the ERROR severity.
@@ -194,6 +218,24 @@ func Infoln(v ...interface{}) {
 // Arguments are handled in the manner of fmt.Printf.
 func Infof(format string, v ...interface{}) {
 	defaultLogger.output(sInfo, fmt.Sprintf(format, v...))
+}
+
+// Warn uses the default logger and logs with the Warn severity.
+// Arguments are handled in the manner of fmt.Print.
+func Warn(v ...interface{}) {
+	defaultLogger.output(sWarn, fmt.Sprint(v...))
+}
+
+// Warnln uses the default logger and logs with the Warn severity.
+// Arguments are handled in the manner of fmt.Println.
+func Warnln(v ...interface{}) {
+	defaultLogger.output(sWarn, fmt.Sprintln(v...))
+}
+
+// Warnf uses the default logger and logs with the Warn severity.
+// Arguments are handled in the manner of fmt.Printf.
+func Warnf(format string, v ...interface{}) {
+	defaultLogger.output(sWarn, fmt.Sprintf(format, v...))
 }
 
 // Error uses the default logger and logs with the Error severity.
