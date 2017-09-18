@@ -63,11 +63,11 @@ func newW(pri severity, src string) (*writer, error) {
 func setup(src string) (*writer, *writer, error) {
 	infoL, err := newW(sInfo, src)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 	errL, err := newW(sError, src)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 	return infoL, errL, nil
 }
